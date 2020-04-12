@@ -35,7 +35,7 @@ func Books(c echo.Context) error {
 		return c.String(http.StatusOK, err.Error())
 	}
 	var rBooks []BooksType
-	rows, err := db.Queryx("SELECT bookID, title, authors FROM  books")
+	rows, err := db.Queryx("SELECT DISTINCT bookID, title, authors FROM  books LIMIT 50 ")
 	if err != nil {
 		return c.String(http.StatusOK, err.Error())
 	}

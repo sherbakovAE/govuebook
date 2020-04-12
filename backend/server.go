@@ -9,6 +9,7 @@ import (
 func main() {
 
 	e := echo.New()
+	e.Use(middleware.CORS())
 	e.Use(middleware.Logger())
 	e.Static("/", "frontend/dist")
 	e.GET("/books", handlers.Books)
