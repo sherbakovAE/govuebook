@@ -24,54 +24,18 @@
 </template>
 
 <script>
-    // import Vue from 'vue';
-    // import VueResource from 'vue-resource'
-    //
-    // Vue.use(VueResource);
-    // Vue.http.options.emulateJSON = true;
-    // const http = Vue.http;
+    import {FetchDataFromApi} from '@/utils'
 
     export default {
         name: "books-table",
         data() {
             return {
                 headers: [{text: 'Title', value: 'title'}, {text: 'Authors', value: 'authors'}],
-                books: [
-                    {title: 'Misery', authors: 'Stephen King', id: 1},
-                    {title: 'Dracula', authors: 'Bram Stoker', id: 2}
-                ]
+                books: []
             }
         },
-        methods: {
-            fetchBooks: function () {
-                fetch('http://localhost:1323/books',
-                    {
-                        mode: 'cors', // no-cors, *cors, same-origin
-                        headers: {
-                            'Access-Control-Allow-Origin': '*'
-                        },
-                    }
-                )
-                    .then(response => {
-                            if (!response.ok) {
-                                console.log('Network response not is ok.');
-                            } else {
-                                response.json().then(data => {
-                                    this.books = data
-                                }).catch(error => {
-                                        console.log('json error', error);
-                                    }
-                                )
-                            }
-                        }
-                    ).catch(error => {
-                    console.log('There was a problem with your fetch request: ', error.message);
-                })
-            }
-        },
-        created() {
-            console.log(this.books);
-            this.fetchBooks()
+        async beforeMount() {
+            this.books = await FetchDataFromApi('/books')
         }
     }
 </script>
