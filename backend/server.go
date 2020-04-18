@@ -12,6 +12,9 @@ func main() {
 	e.Use(middleware.CORS())
 	e.Use(middleware.Logger())
 	e.Static("/", "frontend/dist")
-	e.GET("/books", handlers.Books)
+
+	apiV1 := e.Group("/api/v1")
+	apiV1.GET("/books", handlers.Books)
+
 	e.Logger.Fatal(e.Start(":1323"))
 }

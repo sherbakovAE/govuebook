@@ -2,19 +2,19 @@
     <v-data-table
             :headers="headers"
             :items="books"
-            :server-items-length="books.length"
-            :items-per-page="5"
+            :options.sync="options"
+            :server-items-length="total"
             :footer-props="{
             showFirstLastPage: true,
             firstIcon: 'mdi-arrow-collapse-left',
             lastIcon: 'mdi-arrow-collapse-right',
             prevIcon: 'mdi-minus',
-            nextIcon: 'mdi-plus'
+            nextIcon: 'mdi-plus',
             }"
             hide-action
             item-key="title">
         <template slot="items" slot-scope="props">
-            <tr @click="props.expanded = !props.expanded">
+            <tr>
                 <td>{{ props.item.title }}</td>
                 <td>{{ props.item.authors }}</td>
             </tr>
@@ -30,13 +30,27 @@
         name: "books-table",
         data() {
             return {
+                loading: true,
+                options: {page:1, itemsPerPage:20},
                 headers: [{text: 'Title', value: 'title'}, {text: 'Authors', value: 'authors'}],
-                books: []
+                books: [],
+                total: 500
             }
         },
         async beforeMount() {
-            this.books = await FetchDataFromApi('/books')
+            const {page, itemsPerPage} = this.options;
+            [this.books,this.total] = await FetchDataFromApi('/books', page, itemsPerPage);
+        },
+        watch: {
+            options: {
+                async handler() {
+                    const {page, itemsPerPage} = this.options;
+                    [this.books,this.total] = await FetchDataFromApi('/books', page, itemsPerPage);
+                },
+                deep: true
+            }
         }
+        ,
     }
 </script>
 

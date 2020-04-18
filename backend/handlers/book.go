@@ -5,6 +5,7 @@ import (
 	echo "github.com/labstack/echo/v4"
 	_ "github.com/mattn/go-sqlite3"
 	"net/http"
+	"strconv"
 )
 
 var db *sqlx.DB
@@ -34,8 +35,16 @@ func Books(c echo.Context) error {
 	if err != nil {
 		return c.String(http.StatusOK, err.Error())
 	}
+	page, err := strconv.Atoi(c.QueryParam("page"))
+	if err != nil {
+		return c.String(http.StatusOK, err.Error())
+	}
+	itemsPerPage, err := strconv.Atoi(c.QueryParam("itemsPerPage"))
+	if err != nil {
+		return c.String(http.StatusOK, err.Error())
+	}
 	var rBooks []BooksType
-	rows, err := db.Queryx("SELECT DISTINCT bookID, title, authors FROM  books LIMIT 50 ")
+	rows, err := db.Queryx("SELECT  bookID, title, authors FROM  books ORDER BY bookID LIMIT ? OFFSET ? ", itemsPerPage, itemsPerPage*(page-1))
 	if err != nil {
 		return c.String(http.StatusOK, err.Error())
 	}
@@ -49,6 +58,9 @@ func Books(c echo.Context) error {
 		rBooks = append(rBooks, b)
 	}
 
+	var count int
+	err = db.Get(&count, "SELECT count(*) FROM books")
+	c.Response().Header().Set("Access-Control-Expose-Headers", "X-Total-Count")
+	c.Response().Header().Set("X-Total-Count", strconv.Itoa(count))
 	return c.JSON(http.StatusOK, rBooks)
-
 }
